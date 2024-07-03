@@ -6,41 +6,84 @@ class View(ft.UserControl):
         super().__init__()
         # page stuff
         self._page = page
-        self._page.title = "Template application using MVC and DAO"
+        self._page.title = "Esercizio gestore corsi"
         self._page.horizontal_alignment = 'CENTER'
         self._page.theme_mode = ft.ThemeMode.DARK
         # controller (it is not initialized. Must be initialized in the main, after the controller is created)
         self._controller = None
         # graphical elements
         self._title = None
-        self.txt_name = None
-        self.btn_hello = None
-        self.txt_result = None
-        self.txt_container = None
+        self.dd_periodo = None
+        self.btn_corsi_periodo = None
+        self.btn_studenti_periodo = None
+        self.txt_codice_corso = None
+        self.btn_studenti_corso = None
+        self.btn_dettaglio_corso = None
+        self.lst_result = None
 
     def load_interface(self):
         # title
-        self._title = ft.Text("Hello World", color="blue", size=24)
+        self._title = ft.Text("Gestore corsi", color="blue", size=24)
         self._page.controls.append(self._title)
 
-        #ROW with some controls
-        # text field for the name
-        self.txt_name = ft.TextField(
-            label="name",
+        # ROW with some controls for periodo didattico
+        self.dd_periodo = ft.Dropdown(
+            label="Periodo",
+            options=[ft.dropdown.Option(key="1"), ft.dropdown.Option(key="2")],
             width=200,
-            hint_text="Insert a your name"
+            hint_text="Selezionare periodo didattico",
+            on_change=self._controller.leggi_tendina
+            # ogni volta che la tendina viene selezionata deve leggere il valore e metterlo da parte nel controller
         )
 
-        # button for the "hello" reply
-        self.btn_hello = ft.ElevatedButton(text="Hello", on_click=self._controller.handle_hello)
-        row1 = ft.Row([self.txt_name, self.btn_hello],
-                      alignment=ft.MainAxisAlignment.CENTER)
+        self.btn_corsi_periodo = ft.ElevatedButton(text="Corsi periodo",
+                                                   width=200,
+                                                   tooltip="Metodo per stampare i corsi del periodo didattico",
+                                                   on_click=self._controller.get_corsi_periodo)
+
+        # nella view metto solo gli elementi, nel controller metto handle, event ecc
+
+        self.btn_studenti_periodo = ft.ElevatedButton(text="Studenti periodo",
+                                                      width=200,
+                                                      tooltip="Metodo per stampare gli studenti iscritti ai corsi del "
+                                                              "periodo didattico",
+                                                      on_click=self._controller.get_studenti_periodo)
+
+        row1 = ft.Row(alignment=ft.MainAxisAlignment.CENTER, controls=[self.dd_periodo,
+                                                                       self.btn_corsi_periodo,
+                                                                       self.btn_studenti_periodo])
         self._page.controls.append(row1)
 
-        # List View where the reply is printed
-        self.txt_result = ft.ListView(expand=1, spacing=10, padding=20, auto_scroll=True)
-        self._page.controls.append(self.txt_result)
+        # Second row with controls for codice corso
+
+        self.txt_codice_corso = ft.TextField(label="Codice corso",
+                                             hint_text="Inserire il codice di un corso",
+                                             width=300)
+
+        self.btn_studenti_corso = ft.ElevatedButton(text="Studenti corso",
+                                                    width=200,
+                                                    tooltip="Metodo per stampare gli studenti iscritti ad un corso",
+                                                    on_click=self._controller.get_studenti_corso)
+
+        self.btn_dettaglio_corso = ft.ElevatedButton(text="Dettaglio corso",
+                                                     width=200,
+                                                     tooltip="Metodo per stampare il dettaglio degli studenti iscritti "
+                                                             "ad un corso",
+                                                     on_click=self._controller.get_dettaglio_corso)
+
+        row2 = ft.Row(alignment=ft.MainAxisAlignment.CENTER, controls=[self.txt_codice_corso,
+                                                                       self.btn_studenti_corso,
+                                                                       self.btn_dettaglio_corso])
+        self._page.controls.append(row2)
+
+        # Result
+        # non è un campo di testo, è un contenitore di righe, quindi non posso scriverci direttamente il testo,
+        # ma dentro i controlli devo metterci dei ft.Text altrimenti dà errore
+        self.lst_result = ft.ListView(expand=1, spacing=10, padding=20, auto_scroll=True)
+        self._page.controls.append(self.lst_result)
+
         self._page.update()
+
 
     @property
     def controller(self):
